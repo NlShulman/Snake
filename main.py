@@ -5,7 +5,8 @@ from food import Food
 from score import Score
 
 screen = Screen()
-user_choice = int(screen.textinput(title="Choose difficulty", prompt=" 1 Beginner, 2 Intermediate, 3 Advanced:"))
+user_choice = int(screen.textinput(title="Choose difficulty", prompt=" 1 Beginner, 2 Intermediate, 3 Advanced:\n"
+                                                                     "                  Move with a\w\d\s"))
 screen.setup(width=600, height=600)
 screen.title("Nicole Snake Game")
 screen.bgcolor("black")
