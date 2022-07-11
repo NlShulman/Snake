@@ -1,58 +1,72 @@
-from turtle import Turtle
+import time
+from turtle import Screen
+from snake import Snake
+from food import Food
+from score import Score
 
-POSITION = [(0, 0), (-20, 0), (-40, 0)]
-MOVE_DISTANCE = 10
+new_game = True
 
-
-class Snake:
-
-    def __init__(self):
-        self.body = []
-        self.create_snake()
-        self.head = self.body[0]
-
-    def create_snake(self):
-        for position in POSITION:
-            self.add_part(position)
-
-    def add_part(self, position):
-        body_part = Turtle(shape="square")
-        body_part.color("white")
-        body_part.penup()
-        self.body.append(body_part)
-        body_part.goto(position)
-
-    def extend(self):
-        self.add_part(self.body[-1].position())
-
-    def move(self):
-        for i in range(len(self.body) - 1, 0, -1):
-            position = self.body[i - 1].position()
-            self.body[i].speed(0.5)
-            self.body[i].goto(position)
-        self.head.forward(MOVE_DISTANCE)
+screen = Screen()
+user_choice = int(screen.textinput(title="Choose difficulty", prompt=" 1 Beginner, 2 Intermediate, 3 Advanced:\n"
+                                                                     "                  Move with a\w\d\s"))
+while new_game:
+    screen.reset()
+    screen.setup(width=600, height=600)
+    screen.title("Nicole Snake Game")
+    screen.bgcolor("black")
+    screen.tracer(0)
+    snake = Snake()
+    food = Food()
+    score = Score()
+    screen.listen()
+    screen.onkey(key="a", fun=snake.move_left)
+    screen.onkey(key="d", fun=snake.move_right)
+    screen.onkey(key="w", fun=snake.move_up)
+    screen.onkey(key="s", fun=snake.move_down)
 
 
-    def move_right(self):
-        if int(self.head.heading()) == 90:
-            self.head.right(90)
-        elif int(self.head.heading()) == 270:
-            self.head.left(90)
+    def level(choice):
+        if choice == 1:
+            return 0.15
+        elif choice == 2:
+            return 0.075
+        elif choice == 3:
+            return 0.04
 
-    def move_up(self):
-        if int(self.head.heading()) == 0:
-            self.head.left(90)
-        elif int(self.head.heading()) == 180:
-            self.head.right(90)
 
-    def move_left(self):
-        if int(self.head.heading()) == 90:
-            self.head.left(90)
-        elif int(self.head.heading()) == 270:
-            self.head.right(90)
+    game_is_on = True
 
-    def move_down(self):
-        if int(self.head.heading()) == 0:
-            self.head.right(90)
-        elif int(self.head.heading()) == 180:
-            self.head.left(90)
+    while game_is_on:
+
+        screen.update()
+        time.sleep(level(user_choice))
+        snake.move()
+
+        if snake.head.distance(food) < 15:
+            food.refresh()
+            score.update_score()
+            snake.extend()
+
+        y_cor = int(snake.head.ycor())
+        x_cor = int(snake.head.xcor())
+
+        if x_cor < -280 or x_cor > 280 or y_cor < -280 or y_cor > 280:
+            score.game_over()
+            play_again = (screen.textinput(title="Play Again?", prompt="Y\ N")).lower()
+            if play_again == "y":
+                new_game = True
+            else:
+                new_game = False
+            game_is_on = False
+
+        for body_part in snake.body[1:]:
+            if body_part.position() == snake.head.position():
+                score.game_over()
+                play_again = (screen.textinput(title="Play Again?", prompt="Y\ N")).lower()
+                if play_again == "y":
+                    new_game = True
+                else:
+                    new_game = False
+                game_is_on = False
+
+screen.exitonclick()
